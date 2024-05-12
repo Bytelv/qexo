@@ -233,16 +233,22 @@ def friends(request):
         data = list()
         for i in all_friends:
             if i.status:
-                data.append({"name": i.name, "url": i.url, "image": i.imageUrl,
-                             "description": i.description,
-                             "time": i.time})
-        data.sort(key=lambda x: x["time"])
-        context = {"data": data, "status": True}
+                # 直接忽略screenshot字段，并正确赋值avatar字段
+                data.append({
+                    "title": i.name, 
+                    "url": i.url,
+                    "avatar": i.imageUrl,  # imageUrl字段对应avatar字段
+                    "description": i.description,
+                    "keywords": ""  # 默认为空的keywords字段
+                })
+        context = {
+            "version": "v2",
+            "content": data
+        }
     except Exception as e:
         logging.error(repr(e))
         context = {"msg": repr(e), "status": False}
-    return JsonResponse(safe=False, data=context)
-
+    return JsonResponse(context, safe=False)
 
 # 新增友链 pub/add_friend
 @csrf_exempt
